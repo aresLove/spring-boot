@@ -28,9 +28,12 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
@@ -59,6 +62,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
+
 import org.springframework.boot.ApplicationHome;
 import org.springframework.boot.ApplicationTemp;
 import org.springframework.boot.context.embedded.Ssl.ClientAuth;
@@ -76,6 +80,8 @@ import org.springframework.util.concurrent.ListenableFuture;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
@@ -648,6 +654,25 @@ public abstract class AbstractEmbeddedServletContainerFactoryTests {
 		assertFalse(doTestCompression(10000, null, new String[] { "testUserAgent" }));
 	}
 
+	@Test
+	public void mimeMappingsAreCorrectlyConfigured() throws Exception {
+		AbstractEmbeddedServletContainerFactory factory = getFactory();
+		this.container = factory.getEmbeddedServletContainer();
+		Map<String, String> configuredMimeMappings = getActualMimeMappings();
+		Set<Entry<String, String>> entrySet = configuredMimeMappings.entrySet();
+		Collection<MimeMappings.Mapping> expectedMimeMappings = getExpectedMimeMappings();
+		for (Entry<String, String> entry : entrySet) {
+			assertThat(expectedMimeMappings,
+					hasItem(new MimeMappings.Mapping(entry.getKey(), entry.getValue())));
+		}
+		for (MimeMappings.Mapping mapping : expectedMimeMappings) {
+			assertThat(configuredMimeMappings,
+					hasEntry(mapping.getExtension(), mapping.getMimeType()));
+		}
+		assertThat(configuredMimeMappings.size(),
+				is(equalTo(expectedMimeMappings.size())));
+	}
+
 	private boolean doTestCompression(int contentSize, String[] mimeTypes,
 			String[] excludedUserAgents) throws Exception {
 		String testContent = setUpFactoryForCompression(contentSize, mimeTypes,
@@ -684,6 +709,12 @@ public abstract class AbstractEmbeddedServletContainerFactoryTests {
 		this.container = factory.getEmbeddedServletContainer();
 		this.container.start();
 		return testContent;
+	}
+
+	protected abstract Map<String, String> getActualMimeMappings();
+
+	protected Collection<MimeMappings.Mapping> getExpectedMimeMappings() {
+		return MimeMappings.DEFAULT.getAll();
 	}
 
 	private void addTestTxtFile(AbstractEmbeddedServletContainerFactory factory)

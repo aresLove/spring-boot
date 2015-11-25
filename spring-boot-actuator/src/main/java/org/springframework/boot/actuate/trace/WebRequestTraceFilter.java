@@ -33,6 +33,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.boot.actuate.trace.TraceProperties.Include;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.core.Ordered;
@@ -169,8 +170,10 @@ public class WebRequestTraceFilter extends OncePerRequestFilter implements Order
 
 	@SuppressWarnings("unchecked")
 	protected void enhanceTrace(Map<String, Object> trace, HttpServletResponse response) {
-		Map<String, Object> headers = (Map<String, Object>) trace.get("headers");
-		headers.put("response", getResponseHeaders(response));
+		if (isIncluded(Include.RESPONSE_HEADERS)) {
+			Map<String, Object> headers = (Map<String, Object>) trace.get("headers");
+			headers.put("response", getResponseHeaders(response));
+		}
 	}
 
 	private Map<String, String> getResponseHeaders(HttpServletResponse response) {

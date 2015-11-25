@@ -36,6 +36,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.artifact.filter.collection.AbstractArtifactFeatureFilter;
 import org.apache.maven.shared.artifact.filter.collection.FilterArtifacts;
+
 import org.springframework.boot.loader.tools.FileUtils;
 import org.springframework.boot.loader.tools.MainClassFinder;
 
@@ -63,11 +64,13 @@ public abstract class AbstractRunMojo extends AbstractDependencyFilterMojo {
 	/**
 	 * Add maven resources to the classpath directly, this allows live in-place editing of
 	 * resources. Duplicate resources are removed from {@code target/classes} to prevent
-	 * them to appear twice if {@code ClassLoader.getResources()} is called.
+	 * them to appear twice if {@code ClassLoader.getResources()} is called. Please consider
+	 * adding {@code spring-boot-devtools} to your project instead as it provides this feature
+	 * and many more.
 	 * @since 1.0
 	 */
-	@Parameter(property = "run.addResources", defaultValue = "true")
-	private boolean addResources;
+	@Parameter(property = "run.addResources", defaultValue = "false")
+	private boolean addResources = false;
 
 	/**
 	 * Path to agent jar. NOTE: the use of agents means that processes will be started by

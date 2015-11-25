@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.boot.cli.compiler;
+package org.springframework.boot.cli.compiler.maven;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -31,6 +31,7 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
+
 import org.springframework.boot.cli.util.Log;
 
 /**
